@@ -13,3 +13,22 @@ class Point {
 		this.z = z;
 	}
 }
+
+class Shape {
+	constructor(triangles = []) {
+		this.triangles = triangles;
+		this.local = Matrix.identity(4);
+	}
+
+	addTriangle(triangle) {
+
+	}
+
+	move(x, y = 0, z = 0) {
+		
+	}
+
+	rotate(x, y = 0, z = 0) {
+
+	}
+}

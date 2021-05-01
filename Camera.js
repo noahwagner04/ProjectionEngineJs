@@ -1,11 +1,6 @@
-class Camera {
+class Camera extends Entity {
 	constructor(config) {
-		this.cameraSpace = Matrix.identity(4); // 4 x 4 matrix
-		this.rotX = 0;
-		this.rotY = 0;
-		this.rotZ = 0;
-		this.translation = [0, 0, 0];
-
+		super();
 		this.zNear = config.zNear;
 		this.zFar = config.zFar;
 
@@ -44,42 +39,6 @@ class Camera {
 		return this;
 	}
 
-	moveTo(translationVec) {
-		this.translation[0] = translationVec[0];
-		this.translation[1] = translationVec[1];
-		this.translation[2] = translationVec[2];
-		this.cameraSpace.setColumn(3, [this.translation[0], this.translation[1], this.translation[2], 1]);
-		return this;
-	}
-
-	move(moveVec) {
-		this.translation[0] += moveVec[0];
-		this.translation[1] += moveVec[1];
-		this.translation[2] += moveVec[2];
-		this.moveTo(this.translation);
-		return this;
-	}
-
-	setRotation(rotX, rotY, rotZ) {
-		this.rotX = rotX;
-		this.rotY = rotY;
-		this.rotZ = rotZ;
-		let rotationSpace = Matrix.identity(3).rotate(rotX, rotY, rotZ);
-		this.cameraSpace.map((e, i, j) => {
-			if (i === 3 || j === 3) return e;
-			else {
-				return rotationSpace.data[i][j];
-			}
-		});
-	}
-
-	rotate(rotX, rotY, rotZ) {
-		this.rotX += rotX;
-		this.rotY += rotY;
-		this.rotZ += rotZ;
-		this.setRotation(this.rotX, this.rotY, this.rotZ);
-	}
-
 	getCanvaseCoords() {
 		let xScale = 1;
 		let yScale = 1;
@@ -106,7 +65,7 @@ class Camera {
 	}
 
 	toCameraSpace(p) {
-		let point = Matrix.toArray(Matrix.multiply(Matrix.getInverseOf(this.cameraSpace), Matrix.fromArray([p.x, p.y, p.z, 1])));
+		let point = Matrix.toArray(Matrix.multiply(Matrix.getInverseOf(this.localSpace), Matrix.fromArray([p.x, p.y, p.z, 1])));
 		this.workingPoint = new Point(point[0], point[1], point[2]);
 		return this;
 	}
