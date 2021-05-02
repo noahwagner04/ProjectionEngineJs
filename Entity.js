@@ -5,7 +5,7 @@ class Entity {
 		this.rotation = [0, 0, 0];
 	}
 
-	moveTo(translationVec) {
+	setPosition(translationVec) {
 		this.translation[0] = translationVec[0];
 		this.translation[1] = translationVec[1];
 		this.translation[2] = translationVec[2];
@@ -17,11 +17,11 @@ class Entity {
 		this.translation[0] += moveVec[0];
 		this.translation[1] += moveVec[1];
 		this.translation[2] += moveVec[2];
-		this.moveTo(this.translation);
+		this.setPosition(this.translation);
 		return this;
 	}
 
-	setRotation(rotX, rotY, rotZ) {
+	setRotation(rotX, rotY = 0, rotZ = 0) {
 		this.rotation[0] = rotX;
 		this.rotation[1] = rotY;
 		this.rotation[2] = rotZ;
@@ -34,7 +34,7 @@ class Entity {
 		});
 	}
 
-	rotate(rotX, rotY, rotZ) {
+	rotate(rotX, rotY = 0, rotZ = 0) {
 		this.rotation[0] += rotX;
 		this.rotation[1] += rotY;
 		this.rotation[2] += rotZ;
