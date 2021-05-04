@@ -17,34 +17,31 @@ class Point {
 class Shape extends Entity {
 	constructor(triangles = []) {
 		super();
-		this.triangles = triangles;
+		this.localTriangles = triangles;
+		this.toWorldSpace();
 	}
 
 	addTriangle(triangle) {
-		this.toLocalSpace();
-		this.triangles.push(triangle);
+		this.localTriangles.push(triangle);
 		this.toWorldSpace();
 		return this;
 	}
 
 	setPosition(translationVec) {
-		this.toLocalSpace();
 		super.setPosition(translationVec);
 		this.toWorldSpace();
 		return this;
 	}
 
 	setRotation(rotX, rotY = 0, rotZ = 0) {
-		this.toLocalSpace();
 		super.setRotation(rotX, rotY, rotZ);
 		this.toWorldSpace();
 		return this;
 	}
 
 	changeOrigin(newOrigin) {
-		this.toLocalSpace();
-		for (let i = 0; i < this.triangles.length; i++) {
-			let triangle = this.triangles[i];
+		for (let i = 0; i < this.localTriangles.length; i++) {
+			let triangle = this.localTriangles[i];
 			triangle.p1 = new Point(triangle.p1.x - newOrigin[0], triangle.p1.y - newOrigin[1], triangle.p1.z - newOrigin[2]);
 			triangle.p2 = new Point(triangle.p2.x - newOrigin[0], triangle.p2.y - newOrigin[1], triangle.p2.z - newOrigin[2]);
 			triangle.p3 = new Point(triangle.p3.x - newOrigin[0], triangle.p3.y - newOrigin[1], triangle.p3.z - newOrigin[2]);
@@ -54,27 +51,17 @@ class Shape extends Entity {
 	}
 
 	toWorldSpace() {
-		for (let i = 0; i < this.triangles.length; i++) {
-			let triangle = this.triangles[i];
+		this.worldTriangles = [];
+		for (let i = 0; i < this.localTriangles.length; i++) {
+			let triangle = this.localTriangles[i];
 			let world1 = Matrix.toArray(Matrix.multiply(this.localSpace, Matrix.fromArray([triangle.p1.x, triangle.p1.y, triangle.p1.z, 1])));
 			let world2 = Matrix.toArray(Matrix.multiply(this.localSpace, Matrix.fromArray([triangle.p2.x, triangle.p2.y, triangle.p2.z, 1])));
 			let world3 = Matrix.toArray(Matrix.multiply(this.localSpace, Matrix.fromArray([triangle.p3.x, triangle.p3.y, triangle.p3.z, 1])));
-			triangle.p1 = new Point(world1[0], world1[1], world1[2]);
-			triangle.p2 = new Point(world2[0], world2[1], world2[2]);
-			triangle.p3 = new Point(world3[0], world3[1], world3[2]);
-		}
-		return this;
-	}
-
-	toLocalSpace() {
-		for (let i = 0; i < this.triangles.length; i++) {
-			let triangle = this.triangles[i];
-			let world1 = Matrix.toArray(Matrix.multiply(Matrix.getInverseOf(this.localSpace), Matrix.fromArray([triangle.p1.x, triangle.p1.y, triangle.p1.z, 1])));
-			let world2 = Matrix.toArray(Matrix.multiply(Matrix.getInverseOf(this.localSpace), Matrix.fromArray([triangle.p2.x, triangle.p2.y, triangle.p2.z, 1])));
-			let world3 = Matrix.toArray(Matrix.multiply(Matrix.getInverseOf(this.localSpace), Matrix.fromArray([triangle.p3.x, triangle.p3.y, triangle.p3.z, 1])));
-			triangle.p1 = new Point(world1[0], world1[1], world1[2]);
-			triangle.p2 = new Point(world2[0], world2[1], world2[2]);
-			triangle.p3 = new Point(world3[0], world3[1], world3[2]);
+			this.worldTriangles.push(new Triangle(
+				new Point(world1[0], world1[1], world1[2]),
+				new Point(world2[0], world2[1], world2[2]),
+				new Point(world3[0], world3[1], world3[2])
+			));
 		}
 		return this;
 	}
@@ -85,7 +72,7 @@ class Plane extends Shape {
 		super();
 		this.w = w;
 		this.h = h;
-		this.triangles = this.init();
+		this.localTriangles = this.init();
 	}
 
 	init() {
@@ -105,7 +92,7 @@ class Rectangle extends Shape {
 		this.l = l;
 		this.w = w;
 		this.h = h;
-		this.triangles = this.init();
+		this.localTriangles = this.init();
 	}
 
 	init() {
