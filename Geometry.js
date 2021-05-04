@@ -96,14 +96,14 @@ class Rectangle extends Shape {
 	}
 
 	init() {
-		let p1 = new Point(-this.w / 2, this.h / 2, -this.l / 2);
-		let p2 = new Point(this.w / 2, this.h / 2, -this.l / 2);
-		let p3 = new Point(this.w / 2, -this.h / 2, -this.l / 2);
-		let p4 = new Point(-this.w / 2, -this.h / 2, -this.l / 2);
-		let p5 = new Point(-this.w / 2, this.h / 2, this.l / 2);
-		let p6 = new Point(this.w / 2, this.h / 2, this.l / 2);
-		let p7 = new Point(this.w / 2, -this.h / 2, this.l / 2);
-		let p8 = new Point(-this.w / 2, -this.h / 2, this.l / 2);
+		let p1 = new Point(-this.w / 2, this.h / 2, this.l / 2);
+		let p2 = new Point(this.w / 2, this.h / 2, this.l / 2);
+		let p3 = new Point(this.w / 2, -this.h / 2, this.l / 2);
+		let p4 = new Point(-this.w / 2, -this.h / 2, this.l / 2);
+		let p5 = new Point(-this.w / 2, this.h / 2, -this.l / 2);
+		let p6 = new Point(this.w / 2, this.h / 2, -this.l / 2);
+		let p7 = new Point(this.w / 2, -this.h / 2, -this.l / 2);
+		let p8 = new Point(-this.w / 2, -this.h / 2, -this.l / 2);
 		// front face
 		let triangle1 = new Triangle(p4, p1, p2);
 		let triangle2 = new Triangle(p4, p2, p3);
