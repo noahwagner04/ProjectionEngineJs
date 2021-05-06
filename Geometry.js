@@ -15,10 +15,13 @@ class Point {
 }
 
 class Shape extends Entity {
-	constructor(triangles = []) {
+	constructor(points = [], triangles = []) {
 		super();
+		this.localPoints = points;
 		this.localTriangles = triangles;
 		this.toWorldSpace();
+		this.rasterPoints = [];
+		this.rasterTriangles = [];
 	}
 
 	addTriangle(triangle) {
@@ -40,27 +43,35 @@ class Shape extends Entity {
 	}
 
 	changeOrigin(newOrigin) {
-		for (let i = 0; i < this.localTriangles.length; i++) {
-			let triangle = this.localTriangles[i];
-			triangle.p1 = new Point(triangle.p1.x - newOrigin[0], triangle.p1.y - newOrigin[1], triangle.p1.z - newOrigin[2]);
-			triangle.p2 = new Point(triangle.p2.x - newOrigin[0], triangle.p2.y - newOrigin[1], triangle.p2.z - newOrigin[2]);
-			triangle.p3 = new Point(triangle.p3.x - newOrigin[0], triangle.p3.y - newOrigin[1], triangle.p3.z - newOrigin[2]);
+		for (let i = 0; i < this.localPoints.length; i++) {
+			this.localPoints[i].x -= newOrigin[0];
+			this.localPoints[i].y -= newOrigin[1];
+			this.localPoints[i].z -= newOrigin[2];
 		}
 		this.toWorldSpace();
 		return this;
 	}
 
 	toWorldSpace() {
+		this.worldPoints = [];
+		for (let i = 0; i < this.localPoints.length; i++) {
+			let worldPoint =  Matrix.toArray(
+				Matrix.multiply(
+					this.localSpace, 
+					Matrix.fromArray([this.localPoints[i].x, this.localPoints[i].y, this.localPoints[i].z, 1])
+			));
+			this.worldPoints.push(new Point(worldPoint[0], worldPoint[1], worldPoint[2]));
+		}
 		this.worldTriangles = [];
 		for (let i = 0; i < this.localTriangles.length; i++) {
 			let triangle = this.localTriangles[i];
-			let world1 = Matrix.toArray(Matrix.multiply(this.localSpace, Matrix.fromArray([triangle.p1.x, triangle.p1.y, triangle.p1.z, 1])));
-			let world2 = Matrix.toArray(Matrix.multiply(this.localSpace, Matrix.fromArray([triangle.p2.x, triangle.p2.y, triangle.p2.z, 1])));
-			let world3 = Matrix.toArray(Matrix.multiply(this.localSpace, Matrix.fromArray([triangle.p3.x, triangle.p3.y, triangle.p3.z, 1])));
+			let p1Index = this.localPoints.indexOf(triangle.p1);
+			let p2Index = this.localPoints.indexOf(triangle.p2);
+			let p3Index = this.localPoints.indexOf(triangle.p3);
 			this.worldTriangles.push(new Triangle(
-				new Point(world1[0], world1[1], world1[2]),
-				new Point(world2[0], world2[1], world2[2]),
-				new Point(world3[0], world3[1], world3[2])
+				this.worldPoints[p1Index], 
+				this.worldPoints[p2Index], 
+				this.worldPoints[p3Index]
 			));
 		}
 		return this;
@@ -72,7 +83,7 @@ class Plane extends Shape {
 		super();
 		this.w = w;
 		this.h = h;
-		this.localTriangles = this.init();
+		this.init();
 	}
 
 	init() {
@@ -80,9 +91,11 @@ class Plane extends Shape {
 		let p2 = new Point(this.w / 2, this.h / 2, 0);
 		let p3 = new Point(this.w / 2, -this.h / 2, 0);
 		let p4 = new Point(-this.w / 2, -this.h / 2, 0);
+		this.localPoints = [p1, p2, p3, p4];
 		let triangle1 = new Triangle(p4, p1, p2);
 		let triangle2 = new Triangle(p4, p2, p3);
-		return [triangle1, triangle2];
+		this.localTriangles =  [triangle1, triangle2];
+		return this;
 	}
 }
 
@@ -92,7 +105,7 @@ class Rectangle extends Shape {
 		this.l = l;
 		this.w = w;
 		this.h = h;
-		this.localTriangles = this.init();
+		this.init();
 	}
 
 	init() {
@@ -104,6 +117,7 @@ class Rectangle extends Shape {
 		let p6 = new Point(this.w / 2, this.h / 2, -this.l / 2);
 		let p7 = new Point(this.w / 2, -this.h / 2, -this.l / 2);
 		let p8 = new Point(-this.w / 2, -this.h / 2, -this.l / 2);
+		this.localPoints = [p1, p2, p3, p4, p5, p6, p7, p8];
 		// front face
 		let triangle1 = new Triangle(p4, p1, p2);
 		let triangle2 = new Triangle(p4, p2, p3);
@@ -122,6 +136,7 @@ class Rectangle extends Shape {
 		// top face
 		let triangle11 = new Triangle(p1, p5, p6);
 		let triangle12 = new Triangle(p1, p6, p2);
-		return [triangle1, triangle2, triangle3, triangle4, triangle5, triangle6, triangle7, triangle8, triangle9, triangle10, triangle11, triangle12];
+		this.localTriangles = [triangle1, triangle2, triangle3, triangle4, triangle5, triangle6, triangle7, triangle8, triangle9, triangle10, triangle11, triangle12];
+		return this;
 	}
 }
