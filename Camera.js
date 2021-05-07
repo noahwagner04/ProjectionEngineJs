@@ -65,7 +65,7 @@ class Camera extends Entity {
 	}
 
 	toCameraSpace(p) {
-		let point = Matrix.toArray(Matrix.multiply(Matrix.getInverseOf(this.localSpace), Matrix.fromArray([p.x, p.y, p.z, 1])));
+		let point = Matrix.toArray(Matrix.multiply(Matrix.getInverseOfAffinity(this.localSpace), Matrix.fromArray([p.x, p.y, p.z, 1])));
 		this.workingPoint = new Point(point[0], point[1], point[2]);
 		return this;
 	}
